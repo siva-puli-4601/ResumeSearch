@@ -38,8 +38,8 @@ function chunkText(text, wordLimit) {
     return chunks;
 }
 
-export async function processResume(filePath, studentName, resumeNo) {
-    
+export async function processResume(filePath, email, resumeNo) {
+
     try {
         const extractedText = await extractTextFromPDF(filePath);
         const chunks = chunkText(extractedText, 100); 
@@ -50,8 +50,9 @@ export async function processResume(filePath, studentName, resumeNo) {
             embeddings.push({ chunk, embedding });
         }
 
-        return { studentName, resumeNo, chunks, embeddings };
-    } catch (error) {
+        return { email, resumeNo, chunks, embeddings };
+    } 
+    catch (error) {
         console.error('Error processing resume:', error);
     }
 }

@@ -6,12 +6,18 @@ import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
+
+import cors from 'cors';
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+app.use(cors());
+
+app.use(express.json());
 const port = 3000;
 
 // Multer setup for handling PDF file uploads
@@ -36,15 +42,15 @@ const upload = multer({ storage });
 // Upload resume API
 app.post('/upload-resume', upload.single('resume'), async (req, res) => {
   try {
-    const studentName = req.body.studentName;
+    const email = req.body.email;
     const resumeNo = req.body.resumeNo;
     const filePath = req.file.path;
     const emp_id=parseInt(req.body.emp_id);
 
     
-    await upsertResume(filePath, studentName, resumeNo,emp_id);
+    await upsertResume(filePath, email, resumeNo);
 
-    res.status(200).json({ message: 'Resume uploaded and processed successfully' });
+    return res.status(200).json({ message: 'Resume uploaded and processed successfully' });
   } catch (error) {
     console.error('Error uploading resume:', error);
     res.status(500).json({ message: 'Error uploading and processing resume' });
@@ -52,16 +58,16 @@ app.post('/upload-resume', upload.single('resume'), async (req, res) => {
 });
 
 // Search resumes API
-app.get('/search-resumes', async (req, res) => {
+app.post('/search-resumes', async (req, res) => {
   try {
-    const query = req.query.skills; 
-    console.log(query);
-    const results = await searchResumes(query);
+    const {skills} = req.body; 
+    console.log(skills);
+    const results = await searchResumes(skills);
 
-    res.status(200).json({ message: 'Search completed', results });
+    return res.status(200).json({ message: 'Search completed', "results": results});
   } catch (error) {
     console.error('Error searching resumes:', error);
-    res.status(500).json({ message: 'Error searching resumes' });
+    return res.status(500).json({ message: 'Error searching resumes' });
   }
 });
 
