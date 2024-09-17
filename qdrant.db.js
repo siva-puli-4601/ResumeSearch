@@ -74,25 +74,29 @@ async function GenResponse(skillQuery,customString)
 } 
 export async function searchResumes(skillQuery) {
   try {
-    const embed = await getEmbedding(skillQuery);
+    const {skills,limit}=skillQuery;
+    const embed = await getEmbedding(skills);
 
-
+    const size=parseInt(limit);
+    // console.log(size);
     const groupby=await client.queryGroups("resumes", {
       query: embed.values,
       group_by: "email",
-      limit: 4,
+      limit: size,
       group_size: 1,
-      score_threshold: 0.45
+      score_threshold: 0.4
   });
    
+  console.log(JSON.stringify(groupby, null, 2));
   var res=[];
    if(groupby.groups.length>0){
    groupby.groups.forEach((group, groupIndex) => {
+    // console.log(group);
     group.hits.forEach((hit, hitIndex) => {
-      console.log(hit);
+      // console.log(hit);
       let x={"email":group.id, "score":hit.score};
       res.push(x);
-      console.log(group.id+"   "+hit.score);
+      // console.log(group.id+" "+hit.score);
     })    
     
    })

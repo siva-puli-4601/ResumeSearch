@@ -20,13 +20,13 @@ app.use(cors());
 app.use(express.json());
 const port = 3000;
 
-// Multer setup for handling PDF file uploads
+
 const uploadDir = path.join(__dirname, './uploads');
 
-// Configure Multer storage
+
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    // Create the uploads directory if it doesn't exist
+    
     fs.mkdirSync(uploadDir, { recursive: true });
     cb(null, uploadDir);
   },
@@ -39,13 +39,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Upload resume API
+
 app.post('/upload-resume', upload.single('resume'), async (req, res) => {
   try {
     const email = req.body.email;
     const resumeNo = req.body.resumeNo;
     const filePath = req.file.path;
-    const emp_id=parseInt(req.body.emp_id);
 
     
     await upsertResume(filePath, email, resumeNo);
@@ -57,12 +56,11 @@ app.post('/upload-resume', upload.single('resume'), async (req, res) => {
   }
 });
 
-// Search resumes API
+
 app.post('/search-resumes', async (req, res) => {
   try {
-    const {skills} = req.body; 
-    console.log(skills);
-    const results = await searchResumes(skills);
+    console.log(req.body);
+    const results = await searchResumes(req.body);
 
     return res.status(200).json({ message: 'Search completed', "results": results});
   } catch (error) {
